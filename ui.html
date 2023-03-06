@@ -1,0 +1,33 @@
+<h2>Insertion test</h2>
+<p>Value: </p>
+<textarea id="value">
+</textarea>
+<button id="create">Create</button>
+<button id="cancel">Cancel</button>
+
+<style>
+  #value{
+  }
+  html{
+    width: 600px;
+    height: 400px;
+  }
+  textarea {
+    width: 500px;
+    height: 400px;
+
+  }
+</style>
+<script>
+
+document.getElementById('create').onclick = () => {
+  const textbox = document.getElementById('value');
+  const data = textbox.value;
+  parent.postMessage({ pluginMessage: { type: 'insert', data } }, '*')
+}
+
+document.getElementById('cancel').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+}
+
+</script>

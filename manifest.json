@@ -1,0 +1,12 @@
+{
+  "name": "test-insert",
+  "id": "1211316958158524817",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ],
+  "ui": "ui.html"
+}
