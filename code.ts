@@ -803,9 +803,9 @@ figma.ui.onmessage = async (msg) => {
       .replaceAll("’", "'");
     console.log(insertion);
     // createForm();
-    const buttonSet = generateButton(100, 40, "click");
-    figma.currentPage.appendChild(buttonSet);
-    // eval(insertion);
+    // const buttonSet = generateButton(100, 40, "click");
+    // figma.currentPage.appendChild(buttonSet);
+    eval(insertion);
     // createHeroSection();
     // createAnotherHero();
     // createSmallCatalog();
