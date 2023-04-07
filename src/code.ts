@@ -46,7 +46,7 @@ figma.showUI(__html__);
 // };
 
 figma.ui.resize(800, 800);
-
+figma.loadFontAsync({ family: "Inter", style: "Regular" })
 figma.ui.onmessage = async (msg) => {
   // One way of distinguishing between different types of messages sent from
   // your HTML page is to use an object with a "type" property like this.
@@ -74,25 +74,33 @@ figma.ui.onmessage = async (msg) => {
     // @ts-ignore
     // button.constraints = firstButton.sizeAndConstraints.constraints;
   }
-  figma.loadFontAsync({ family: "Inter", style: "Regular" })
+  
   // Make sure to close the plugin when you're done. Otherwise the plugin will
   // keep running, which shows the cancel button at the bottom of the screen.
   figma.closePlugin();
 };
-const createDesign = (data: any)=> {
-  eval(data)
+const createDesign = (data: any) => {
+  const insertion = data
+    .replaceAll("“", "")
+    .replaceAll("”", "")
+    .replaceAll("‘", "")
+    .replaceAll("’", "")
+    .replaceAll("```", "")
+  console.log(insertion)
+  eval(insertion)
 }
 async function poll() {
   try {
     const response = await fetch('http://localhost:3300/command/poll');
     const command = await response.json();
-
+    console.log(command)
+    
     if (command.action === 'generateDesign') {
       const generatedCode = command.generatedCode?.message;
       await createDesign(generatedCode);
     }
   } catch (error) {
-    console.error(`Error during polling: ${error}`);
+    console.error(`Error during polling: `, error);
   } finally {
     // Continue polling
     setTimeout(poll, 1000); // Adjust the polling interval as needed
