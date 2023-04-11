@@ -1,33 +1,100 @@
-<h2>Insertion test</h2>
-<p>Value: </p>
-<textarea id="value">
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      padding: 16px;
+    }
+
+    .buttons {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    html {
+      height: 300px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <label for="user-select">Select user:</label>
+  <select id="user-select">
+    <!-- Available users will be populated here -->
+  </select>
+  <script src="ui.js"></script>
+  <p>Insert: </p>
+  <textarea id="value">
 </textarea>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
+  <div class="buttons">
 
-<style>
-  #value{
-  }
-  html{
-    width: 600px;
-    height: 400px;
-  }
-  textarea {
-    width: 500px;
-    height: 400px;
+    <button id="create">Create</button>
+    <button id="cancel">Cancel</button>
+  </div>
+  <script>
+    const serverUrl = 'https://aiphoria.world/api';
+    // const serverUrl = 'http://localhost:3300';
 
-  }
-</style>
-<script>
+    async function fetchAvailableUsers() {
+      try {
+        const response = await fetch(`${serverUrl}/users/users/figma`);
+        const users = await response.json();
+        console.log(users)
+        return users;
+      } catch (error) {
+        console.error(`Error fetching available users: ${error}`);
+        return [];
+      }
+    }
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('value');
-  const data = textbox.value;
-  parent.postMessage({ pluginMessage: { type: 'insert', data } }, '*')
-}
+    async function updateAvailableUsers() {
+      const users = await fetchAvailableUsers();
+      const selectField = document.getElementById('user-select');
+      selectField.innerHTML = '';
 
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+      for (const user of users) {
+        const option = document.createElement('option');
+        option.value = user._id;
+        option.textContent = user.username;
+        selectField.appendChild(option);
 
-</script>
+      }
+      // selectField.value = "642ac32aed4d1ebb4aec089b";
+      // parent.postMessage({ pluginMessage: { type: 'user-selected', userId: selectField.value } }, '*');
+    }
+
+    const selectField = document.getElementById('user-select');
+    selectField.addEventListener('change', (event) => {
+      const selectedUser = event.target.value;
+      parent.postMessage({ pluginMessage: { type: 'user-selected', userId: selectedUser } }, '*');
+    });
+
+    // Fetch and display the available users
+    updateAvailableUsers()
+
+    document.getElementById('create').onclick = () => {
+      const textbox = document.getElementById('value');
+      const data = textbox.value;
+      parent.postMessage({ pluginMessage: { type: 'insert', data } }, '*')
+    }
+
+    document.getElementById('cancel').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+    }
+
+  </script>
+</body>
+
+</html>

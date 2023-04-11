@@ -21,31 +21,9 @@ figma.showUI(__html__);
 // "SCALE": Scale
 // shadow
 // gridStyle
+const POLLING_INTERVAL = 1000;
 
-// const webSocket = new WebSocket('ws://localhost:8888')
-
-
-// webSocket.onopen = () => {
-//   console.log('Connected to the WebSocket server');
-
-//   // Send a message to the server
-//   webSocket.send(JSON.stringify({ text: 'Hello, WebSocket server!' }));
-// };
-
-// webSocket.onmessage = (event) => {
-//   const message = JSON.parse(event.data);
-//   console.log(`Received message: ${message.message}`);
-// };
-
-// webSocket.onerror = (error) => {
-//   console.error(`WebSocket error: ${error}`);
-// };
-
-// webSocket.onclose = () => {
-//   console.log('WebSocket connection closed');
-// };
-
-figma.ui.resize(800, 800);
+figma.ui.resize(400, 400);
 figma.loadFontAsync({ family: "Inter", style: "Regular" })
 figma.ui.onmessage = async (msg) => {
   // One way of distinguishing between different types of messages sent from
@@ -62,50 +40,60 @@ figma.ui.onmessage = async (msg) => {
       .replaceAll("‘", "'")
       .replaceAll("’", "'");
     console.log(insertion);
-    // createForm();
-    // const buttonSet = generateButton(100, 40, "click");
-    // figma.currentPage.appendChild(buttonSet);
+    
     eval(insertion);
-    // createHeroSection();
-    // createAnotherHero();
-    // createSmallCatalog();
-    // createSmallCatalog1();
-    // createSmallCatalog2();
-    // @ts-ignore
-    // button.constraints = firstButton.sizeAndConstraints.constraints;
   }
-  
+
+
+  if (msg.type === 'user-selected') {
+    const userId = msg.userId;
+    poll(userId);
+  }
   // Make sure to close the plugin when you're done. Otherwise the plugin will
   // keep running, which shows the cancel button at the bottom of the screen.
-  figma.closePlugin();
+  // figma.closePlugin();
 };
+
+
+
+
 const createDesign = (data: any) => {
-  const insertion = data
+  const selection = figma.currentPage.selection
+  let code = data
     .replaceAll("“", "")
     .replaceAll("”", "")
     .replaceAll("‘", "")
     .replaceAll("’", "")
     .replaceAll("```", "")
-  console.log(insertion)
-  eval(insertion)
-}
-async function poll() {
+  if(selection.length === 1){
+    code = 'const selection = figma.currentPage.selection[0];' + code
+    code = code.replace(/figma\.currentPage\.appendChild/g, "selection.appendChild")
+  }
   try {
-    const response = await fetch('http://localhost:3300/command/poll');
+    eval(code)
+  } catch (err: any) {
+    console.error("EVAL ERROR")
+    console.error(err.message)
+    console.error(err.stack)
+  }
+}
+// const serverUrl = 'http://localhost:3300';
+const serverUrl = 'https://aiphoria.world/api';
+
+async function poll(userId: any) {
+  try {
+    const response = await fetch(`${serverUrl}/command/poll/${userId}`);
     const command = await response.json();
-    console.log(command)
-    
+    console.log('NEW COMMAND HAS COME:', command)
     if (command.action === 'generateDesign') {
-      const generatedCode = command.generatedCode?.message;
+      const generatedCode = command.generatedCode;
       await createDesign(generatedCode);
     }
   } catch (error) {
-    console.error(`Error during polling: `, error);
+    console.log(error)
   } finally {
-    // Continue polling
-    setTimeout(poll, 1000); // Adjust the polling interval as needed
+    setTimeout(() => poll(userId), POLLING_INTERVAL);
   }
 }
-poll();
 
-// Start polling
+

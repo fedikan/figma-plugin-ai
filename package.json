@@ -5,7 +5,7 @@
   "main": "code.js",
   "scripts": {
     "build": "webpack",
-    "watch": "npm run build -- --watch"
+    "dev": "webpack --mode development --watch"
   },
   "author": "",
   "license": "",
@@ -15,7 +15,8 @@
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.3",
     "webpack": "^5.78.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
   },
   "dependencies": {
     "ws": "^8.13.0"
